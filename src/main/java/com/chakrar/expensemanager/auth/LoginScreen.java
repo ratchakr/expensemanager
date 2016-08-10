@@ -51,11 +51,11 @@ public class LoginScreen extends CssLayout {
     //private Button login;
     private Button forgotPassword;
     private LoginListener loginListener;
-    private AccessControl accessControl;
+    //private AccessControl accessControl;
 
     public LoginScreen(AccessControl accessControl, LoginListener loginListener) {
         this.loginListener = loginListener;
-        this.accessControl = accessControl;
+        //this.accessControl = accessControl;
         buildUI();
         username.focus();
         this.bucket = CouchbaseCluster.create("127.0.0.1").openBucket("default");
@@ -77,50 +77,8 @@ public class LoginScreen extends CssLayout {
                 Alignment.MIDDLE_CENTER);
 
         addComponent(centeringLayout);
-        //addComponent(loginInformation);
     }
 
-/*    private Component buildLoginForm() {
-        FormLayout loginForm = new FormLayout();
-
-        loginForm.addStyleName("login-form");
-        loginForm.setSizeUndefined();
-        loginForm.setMargin(false);
-
-        loginForm.addComponent(username = new TextField("Username", "user"));
-        username.setWidth(15, Unit.EM);
-        loginForm.addComponent(password = new PasswordField("Password"));
-        password.setWidth(15, Unit.EM);
-        password.setDescription("Write anything");
-        CssLayout buttons = new CssLayout();
-        buttons.setStyleName("buttons");
-        loginForm.addComponent(buttons);
-
-        buttons.addComponent(login = new Button("Login"));
-        login.setDisableOnClick(true);
-        login.addClickListener(new Button.ClickListener() {
-            @Override
-            public void buttonClick(Button.ClickEvent event) {
-                try {
-                    login();
-                } finally {
-                    login.setEnabled(true);
-                }
-            }
-        });
-        login.setClickShortcut(ShortcutAction.KeyCode.ENTER);
-        login.addStyleName(ValoTheme.BUTTON_FRIENDLY);
-
-        buttons.addComponent(forgotPassword = new Button("Forgot password?"));
-        forgotPassword.addClickListener(new Button.ClickListener() {
-            @Override
-            public void buttonClick(Button.ClickEvent event) {
-                showNotification(new Notification("Hint: Try anything"));
-            }
-        });
-        forgotPassword.addStyleName(ValoTheme.BUTTON_LINK);
-        return loginForm;
-    }*/
 
     private void login() {
     	logger.info("    Inside login method of LoginScreen...   bucket = "+ bucket + " username = "+ username.getValue() + " password = "+ password.getValue());

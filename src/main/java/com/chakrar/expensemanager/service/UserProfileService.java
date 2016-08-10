@@ -4,6 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.springframework.stereotype.Service;
 
 import com.couchbase.client.java.Bucket;
@@ -24,9 +25,9 @@ public class UserProfileService {
         JsonObject responseContent;
         if (doc == null) {
             responseContent = JsonObject.create().put("success", true).put("failure", "Bad Username or Password");
-        } /*else if(BCrypt.checkpw(password, doc.content().getString("password"))) {
+        } else if(BCrypt.checkpw(password, doc.content().getString("password"))) {
             responseContent = JsonObject.create().put("success", true).put("data", doc.content());
-        }*/ else {
+        } else {
             responseContent = JsonObject.empty().put("success", false).put("failure", "Bad Username or Password");
         }
         logger.info(" responseContent.toString() = "+ responseContent.toString());
@@ -39,8 +40,8 @@ public class UserProfileService {
     public static ResponseEntity<String> signUp(final Bucket bucket, final String username, final String password) {
         JsonObject data = JsonObject.create()
             .put("type", "user")
-            .put("name", username);
-            //.put("password", BCrypt.hashpw(password, BCrypt.gensalt()));
+            .put("name", username)
+            .put("password", BCrypt.hashpw(password, BCrypt.gensalt()));
         JsonDocument doc = JsonDocument.create("user::" + username, data);
 
         try {
@@ -67,9 +68,9 @@ public class UserProfileService {
         JsonObject responseContent;
         if (doc == null) {
             responseContent = JsonObject.create().put("success", false).put("failure", "Bad Username or Password");
-        } /*else if(BCrypt.checkpw(password, doc.content().getString("password"))) {
+        } else if(BCrypt.checkpw(password, doc.content().getString("password"))) {
             responseContent = JsonObject.create().put("success", true).put("data", doc.content());
-        }*/ else {
+        } else {
             responseContent = JsonObject.empty().put("success", false).put("failure", "Bad Username or Password");
         }
         return new ResponseEntity<String>(responseContent.toString(), HttpStatus.OK);
@@ -81,8 +82,8 @@ public class UserProfileService {
     public static ResponseEntity<String> updateSettings(final Bucket bucket, final String username, final String password) {
         JsonObject data = JsonObject.create()
             .put("type", "user")
-            .put("name", username);
-            //.put("password", BCrypt.hashpw(password, BCrypt.gensalt()));
+            .put("name", username)
+            .put("password", BCrypt.hashpw(password, BCrypt.gensalt()));
         JsonDocument doc = JsonDocument.create("user::" + username, data);
 
         try {
