@@ -9,7 +9,6 @@ import java.util.List;
 import org.springframework.data.couchbase.core.query.N1qlPrimaryIndexed;
 import org.springframework.data.couchbase.core.query.ViewIndexed;
 import org.springframework.data.couchbase.repository.CouchbasePagingAndSortingRepository;
-import org.springframework.data.repository.CrudRepository;
 
 /**
  * @author eratnch
@@ -17,7 +16,7 @@ import org.springframework.data.repository.CrudRepository;
  */
 @ViewIndexed(designDoc = "expenseDetail")
 @N1qlPrimaryIndexed
-public interface ExpenseDetailsRepository extends CrudRepository<ExpenseDetail, String> {
+public interface ExpenseDetailsRepository extends CouchbasePagingAndSortingRepository<ExpenseDetail, String> {
 	
 	List<ExpenseDetail> findAll();
 	
