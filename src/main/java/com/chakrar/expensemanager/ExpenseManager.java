@@ -38,9 +38,9 @@ public class ExpenseManager {
 			    
 			    log.info("********   Total Count of Records   "+ repository.count());
 			    
-			    for (ExpenseDetail ed : repository.findAll()) {  
+			    /*for (ExpenseDetail ed : repository.findAll()) {  
 			    	log.info("********       Expense Details :=         "+ed);  
-		        }
+		        }*/
 			    
 			    //List<ExpenseDetail> ex = fts.findByText("Kids");
 			    log.info(" findByMerchant := "+repository.findByMerchant("Patel"));

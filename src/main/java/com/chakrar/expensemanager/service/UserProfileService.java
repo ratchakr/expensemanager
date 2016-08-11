@@ -38,17 +38,27 @@ public class UserProfileService {
      * Create a user account.
      */
     public static ResponseEntity<String> signUp(final Bucket bucket, final String username, final String password) {
+    	logger.info("   Inside UserProfileService.signUp()   ");
+    	String name = "Henry Ford";
+    	String country = "USA";
         JsonObject data = JsonObject.create()
             .put("type", "user")
-            .put("name", username)
+            .put("email", username)
+            .put("name", name)
+            .put("country", country)
             .put("password", BCrypt.hashpw(password, BCrypt.gensalt()));
+        
         JsonDocument doc = JsonDocument.create("user::" + username, data);
 
         try {
+        	logger.info(" data before insert = "+ data);
             bucket.insert(doc);
             JsonObject responseData = JsonObject.create()
                 .put("success", true)
                 .put("data", data);
+            
+            logger.info(" data after insert = "+ responseData);
+            
             return new ResponseEntity<String>(responseData.toString(), HttpStatus.OK);
         } catch (Exception e) {
             JsonObject responseData = JsonObject.empty()
