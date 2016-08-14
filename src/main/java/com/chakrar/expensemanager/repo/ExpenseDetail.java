@@ -26,6 +26,8 @@ public class ExpenseDetail implements Serializable {
 	@Id
 	private String id = UUID.randomUUID().toString();
 	
+	private String username;
+	
 	private String transactionType;
 	
 	private Date transactionDate;
@@ -230,4 +232,22 @@ public class ExpenseDetail implements Serializable {
 	public void setDescription(String description) {
 		this.description = description;
 	}
+
+	/**
+	 * @return the username
+	 */
+	public String getUsername() {
+		return username;
+	}
+
+	/**
+	 * @param username the username to set
+	 */
+	public void setUsername(String username) {
+		this.username = username;
+	}
+
+
+	
+	
 }

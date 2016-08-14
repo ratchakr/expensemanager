@@ -12934,7 +12934,7 @@ div.v-layout.v-horizontal.v-widget {
 
 .expensesmanagertheme .login-screen {
 	background: #ffffff;
-	background-image: url(img/bgi.jpg);
+	background-image: url(#{$login-background-image});
 	background-repeat: no-repeat;
 	background-size: cover;
 	width: 100%;

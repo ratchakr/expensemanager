@@ -1,9 +1,5 @@
 package com.chakrar.expensemanager;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.CommandLineRunner;
@@ -11,7 +7,6 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 
-import com.chakrar.expensemanager.repo.ExpenseDetail;
 import com.chakrar.expensemanager.repo.ExpenseDetailsRepository;
 
 @SpringBootApplication
@@ -49,10 +44,10 @@ public class ExpenseManager {
 		};
     }
 	
-    private Date getFormattedDate (String date_s) throws ParseException {
+/*    private Date getFormattedDate (String date_s) throws ParseException {
     	SimpleDateFormat sdf = new SimpleDateFormat(DATE_FORMAT);
     	Date newDate = sdf.parse(date_s); 
     	return newDate;
-    }
+    }*/
     
 }

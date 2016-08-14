@@ -7,6 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.springframework.stereotype.Service;
 
+import com.chakrar.expensemanager.repo.User;
 import com.couchbase.client.java.Bucket;
 import com.couchbase.client.java.document.JsonDocument;
 import com.couchbase.client.java.document.json.JsonObject;
@@ -21,11 +22,13 @@ public class UserProfileService {
      */
     public static ResponseEntity<String> login(final Bucket bucket, final String username, final String password) {
         JsonDocument doc = bucket.get("user::" + username);
-
+        logger.info(" doc received from bucket " + doc);
+       
         JsonObject responseContent;
         if (doc == null) {
-            responseContent = JsonObject.create().put("success", true).put("failure", "Bad Username or Password");
+            responseContent = JsonObject.create().put("success", false).put("failure", "no user doc found in bucket");
         } else if(BCrypt.checkpw(password, doc.content().getString("password"))) {
+        	logger.info("  ***        password      ******* =   "+ doc.content().getString("password"));
             responseContent = JsonObject.create().put("success", true).put("data", doc.content());
         } else {
             responseContent = JsonObject.empty().put("success", false).put("failure", "Bad Username or Password");
@@ -37,21 +40,22 @@ public class UserProfileService {
     /**
      * Create a user account.
      */
-    public static ResponseEntity<String> signUp(final Bucket bucket, final String username, final String password) {
-    	logger.info("   Inside UserProfileService.signUp()   ");
-    	String name = "Henry Ford";
-    	String country = "USA";
+    public static ResponseEntity<String> signUp(final Bucket bucket, final User user) {
+    	logger.info("   Inside UserProfileService.signUp()   ===       "+ user.getPassword());
         JsonObject data = JsonObject.create()
             .put("type", "user")
-            .put("email", username)
-            .put("name", name)
-            .put("country", country)
-            .put("password", BCrypt.hashpw(password, BCrypt.gensalt()));
+            .put("email", user.getUsername())
+            .put("address", user.getAddress())
+            .put("phone", user.getPhone())
+            .put("age", user.getAge())
+            .put("cardNumber", user.getCardNumber())
+            .put("zipcode", user.getZipCode())
+            .put("password", BCrypt.hashpw(user.getPassword(), BCrypt.gensalt()));
         
-        JsonDocument doc = JsonDocument.create("user::" + username, data);
+        JsonDocument doc = JsonDocument.create("user::" + user.getUsername(), data);
 
         try {
-        	logger.info(" data before insert = "+ data);
+        	//logger.info(" data before insert = "+ data);
             bucket.insert(doc);
             JsonObject responseData = JsonObject.create()
                 .put("success", true)
@@ -65,6 +69,7 @@ public class UserProfileService {
                 .put("success", false)
                 .put("failure", "There was an error creating account")
                 .put("exception", e.getMessage());
+             e.printStackTrace();
             return new ResponseEntity<String>(responseData.toString(), HttpStatus.OK);
         }
     }    

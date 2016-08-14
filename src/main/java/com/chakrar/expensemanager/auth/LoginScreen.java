@@ -7,6 +7,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
+import com.chakrar.expensemanager.repo.User;
 import com.chakrar.expensemanager.service.UserProfileService;
 import com.couchbase.client.java.Bucket;
 import com.couchbase.client.java.CouchbaseCluster;
@@ -48,17 +49,15 @@ public class LoginScreen extends CssLayout {
 	private static final Logger logger = LoggerFactory.getLogger(LoginScreen.class);
 	
 	private Bucket bucket;
+	
+	private SignUpForm signUpForm = new SignUpForm(this);
 
     private TextField username;
     private PasswordField password;
-    //private Button login;
-    private Button forgotPassword;
     private LoginListener loginListener;
-    //private AccessControl accessControl;
 
     public LoginScreen(AccessControl accessControl, LoginListener loginListener) {
         this.loginListener = loginListener;
-        //this.accessControl = accessControl;
         buildUI();
         username.focus();
         this.bucket = CouchbaseCluster.create("127.0.0.1").openBucket("default");
@@ -73,13 +72,20 @@ public class LoginScreen extends CssLayout {
         // layout to center login form when there is sufficient screen space
         // - see the theme for how this is made responsive for various screen
         // sizes
-        VerticalLayout centeringLayout = new VerticalLayout();
+/*        VerticalLayout centeringLayout = new VerticalLayout();
         centeringLayout.setStyleName("centering-layout");
         centeringLayout.addComponent(loginForm);
         centeringLayout.setComponentAlignment(loginForm,
-                Alignment.MIDDLE_CENTER);
+                Alignment.MIDDLE_CENTER);*/
 
-        addComponent(centeringLayout);
+        VerticalLayout register = new VerticalLayout(signUpForm);
+        HorizontalLayout main = new HorizontalLayout(loginForm, register);
+        main.setSpacing(true);
+        main.setSizeFull();
+        
+        //addComponent(centeringLayout);
+        signUpForm.setVisible(false);
+        addComponent(main);
     }
 
     /**
@@ -95,6 +101,7 @@ public class LoginScreen extends CssLayout {
     		
     		if (Boolean.TRUE == json.get("success")) {
     			logger.info("    Login Success      ");
+    			CurrentUser.set(username.getValue());
     			loginListener.loginSuccessful();
     		}
     		
@@ -159,15 +166,6 @@ public class LoginScreen extends CssLayout {
         password.setValue("");
         password.setNullRepresentation("");
         
-/*        final Button forgotPassword = new Button("Forgot Password ?");
-        forgotPassword.addClickListener(new Button.ClickListener() {
-            @Override
-            public void buttonClick(Button.ClickEvent event) {
-                showNotification(new Notification("Hint: Try anything"));
-            }
-        });
-        forgotPassword.addStyleName(ValoTheme.BUTTON_LINK);*/
-
         final Button signin = new Button("Sign In");
         signin.addStyleName(ValoTheme.BUTTON_FRIENDLY);
         signin.setIcon(FontAwesome.SIGN_IN);
@@ -246,7 +244,8 @@ public class LoginScreen extends CssLayout {
             @Override
             public void buttonClick(final ClickEvent event) {
             	try {
-                    register();
+            		signUpForm.setVisible(true);
+                    //register();
                 } finally {
                 	signup.setEnabled(true);
                 }
@@ -254,15 +253,19 @@ public class LoginScreen extends CssLayout {
         });
 	}
     
-	private void register () {
-		logger.info("   Inside register   ::: "+this.bucket);
-		ResponseEntity<String> response = UserProfileService.signUp(this.bucket, username.getValue(), password.getValue());
+	public void register (User user) {
+		logger.info("   Inside register   ::: "+user.getUsername());
+		ResponseEntity<String> response = UserProfileService.signUp(this.bucket, user);
     	if (response.getStatusCode() == HttpStatus.OK) {
     		JsonObject json = JsonObject.fromJson(response.getBody());
     		
     		if (Boolean.TRUE == json.get("success")) {
+    			signUpForm.setVisible(false);
     			logger.info("    Registration Success      ");
-    			//loginListener.loginSuccessful();
+    			showNotification(new Notification("Your account is created!",
+                        "Please sign in with your credentials.",
+                        Notification.Type.HUMANIZED_MESSAGE));
+                username.focus();    			
     		}
     		
     	} else {

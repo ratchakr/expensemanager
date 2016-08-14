@@ -7,6 +7,7 @@ import org.springframework.data.couchbase.core.CouchbaseTemplate;
 
 import com.chakrar.expensemanager.auth.AccessControl;
 import com.chakrar.expensemanager.auth.BasicAccessControl;
+import com.chakrar.expensemanager.auth.CurrentUser;
 import com.chakrar.expensemanager.auth.LoginScreen;
 import com.chakrar.expensemanager.auth.LoginScreen.LoginListener;
 import com.chakrar.expensemanager.repo.ExpenseDetailsRepository;
