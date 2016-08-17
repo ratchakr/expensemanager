@@ -39,7 +39,7 @@ public class ExpenseManagementService {
 		log.info(" findAll called of IMPL "+user);
 		List<ExpenseDetail> expenses = new ArrayList<ExpenseDetail>();
 		ExpenseDetail ed = null;
-		Statement statement = select("transactionDate", "transactionType", "transactionAmount", "merchant", "description").from(i("default")).where(x("username").eq(x("$username")));
+		Statement statement = select("transactionDate", "category", "transactionType", "transactionAmount", "merchant", "description").from(i("default")).where(x("username").eq(x("$username")));
 		JsonObject placeholderValues = JsonObject.create().put("username", user);
 		ParameterizedN1qlQuery q = N1qlQuery.parameterized(statement, placeholderValues);
 		Cluster cluster = CouchbaseCluster.create("127.0.0.1");

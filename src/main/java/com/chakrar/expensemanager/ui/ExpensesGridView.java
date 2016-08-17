@@ -97,9 +97,10 @@ public class ExpensesGridView extends CssLayout implements View {
 		//grid.setWidth("800px");
 		grid.setHeightMode(HeightMode.ROW);
 		grid.setSizeFull();
-		grid.setColumns("transactionDate", "transactionAmount", "merchant", "description");
-				//new MTable<>(ExpenseDetail.class).withProperties("transactionDate", "transactionAmount", "transactionType", "merchant", "category", "description").withHeight("300px");
+		grid.setColumns("transactionDate", "transactionAmount", "merchant", "category", "description");
+		//new MTable<>(ExpenseDetail.class).withProperties("transactionDate", "transactionAmount", "transactionType", "merchant", "category", "description").withHeight("300px");
 		this.addNewBtn = new Button("Add New Expense", FontAwesome.PLUS_CIRCLE);
+		this.addNewBtn.setStyleName(ValoTheme.BUTTON_FRIENDLY);
 		this.filter = new TextField();
 		fromDate = new DateField("Transaction From Date");
 		toDate = new DateField("To Date");

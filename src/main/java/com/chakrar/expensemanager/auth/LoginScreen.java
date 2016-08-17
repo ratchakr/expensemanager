@@ -50,7 +50,7 @@ public class LoginScreen extends CssLayout {
 	
 	private Bucket bucket;
 	
-	private SignUpForm signUpForm = new SignUpForm(this);
+	private SignUpForm signUpForm = new SignUpForm(this, null);
 
     private TextField username;
     private PasswordField password;
