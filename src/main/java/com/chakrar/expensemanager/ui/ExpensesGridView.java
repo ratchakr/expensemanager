@@ -26,7 +26,6 @@ import com.vaadin.event.SelectionEvent.SelectionListener;
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
 import com.vaadin.server.FontAwesome;
-import com.vaadin.shared.ui.grid.HeightMode;
 import com.vaadin.spring.annotation.SpringUI;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
@@ -38,6 +37,7 @@ import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Notification;
 import com.vaadin.ui.Notification.Type;
+import com.vaadin.ui.Panel;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.themes.ValoTheme;
@@ -76,18 +76,23 @@ public class ExpensesGridView extends CssLayout implements View {
 	
 	//private NativeSelect fieldToSearch;
 
-	//private TextField searchText;
+	private TextField merchantField;
+	
+	private TextField categoryField;
 	
 	private DateField fromDate;
 	
 	private DateField toDate;
 	
 	private final Button showAllBtn;
+	
+	private final Button advanceSearchBtn;
 
 	static final Logger log = LoggerFactory.getLogger(ExpensesGridView.class);
     
     private SampleCrudLogic viewLogic = new SampleCrudLogic(this);
-
+    
+    
     @Autowired
     public ExpensesGridView(ExpenseDetailsRepository repo, ExpenseEditor editor, CouchbaseTemplate couchbaseTemplate) {
 		this.repo = repo;
@@ -95,22 +100,64 @@ public class ExpensesGridView extends CssLayout implements View {
 		this.editor = editor;
 		this.grid = new Grid ();
 		//grid.setWidth("800px");
-		grid.setHeightMode(HeightMode.ROW);
-		grid.setSizeFull();
+		//grid.setHeightMode(HeightMode.ROW);
+		//grid.setSizeFull();
 		grid.setColumns("transactionDate", "transactionAmount", "merchant", "category", "description");
 		//new MTable<>(ExpenseDetail.class).withProperties("transactionDate", "transactionAmount", "transactionType", "merchant", "category", "description").withHeight("300px");
 		this.addNewBtn = new Button("Add New Expense", FontAwesome.PLUS_CIRCLE);
 		this.addNewBtn.setStyleName(ValoTheme.BUTTON_FRIENDLY);
 		this.filter = new TextField();
-		fromDate = new DateField("Transaction From Date");
+		this.merchantField = new TextField("Merchant");
+		this.categoryField = new TextField("Category");
+		
+		fromDate = new DateField("From Date");
 		toDate = new DateField("To Date");
-		
 		this.findBtn = new Button("Search", FontAwesome.SEARCH);
-		this.showAllBtn = new Button("Show All", FontAwesome.LIST);
+		this.advanceSearchBtn = new Button("Show/Hide Search Bar", FontAwesome.SEARCH_PLUS);
+		this.showAllBtn = new Button("Clear Filter", FontAwesome.LIST);
 		
-		 setSizeFull();
+		setSizeFull();
 		
-		 viewLogic.init();
+		final Panel searchPanel = new Panel("Filter by criteria");
+		searchPanel.setSizeUndefined();
+		searchPanel.setIcon(FontAwesome.SEARCH);
+		addComponent(searchPanel);
+		searchPanel.setStyleName(ValoTheme.PANEL_BORDERLESS);
+		
+		final HorizontalLayout searchBar = new HorizontalLayout(fromDate, toDate, merchantField, categoryField);
+		searchBar.setSpacing(true);
+		searchBar.setSizeUndefined();
+		
+		HorizontalLayout searchBtns = new HorizontalLayout(findBtn, showAllBtn);
+		searchBtns.setSpacing(true);
+		
+		VerticalLayout searchV = new VerticalLayout(searchBar, searchBtns);
+		searchV.setSpacing(true);
+		searchV.setMargin(true);
+		searchPanel.setContent(searchV);
+		searchPanel.setVisible(false);
+		
+		viewLogic.init();
+		
+		advanceSearchBtn.addClickListener(new ClickListener() {
+			@Override
+			public void buttonClick(ClickEvent e) {
+				/*final Window sub = new Window("This is a sub-window");
+                sub.setModal(true);
+                sub.center();
+                UI.getCurrent().addWindow(sub);
+                
+                VerticalLayout popupContent = new VerticalLayout();
+                popupContent.addComponents(fromDate, toDate, findBtn, showAllBtn);
+                
+                final PopupView popup = new PopupView("Open the search screen", popupContent);
+                popup.setSizeFull();
+                sub.setContent(popup);*/
+                
+				//searchBar.setVisible(true);
+				searchPanel.setVisible(!searchPanel.isVisible());
+			}
+		});
 		
 		Button clearFilterTextBtn = new Button(FontAwesome.TIMES);
 		clearFilterTextBtn.setDescription("Clear the current filter");
@@ -122,9 +169,6 @@ public class ExpensesGridView extends CssLayout implements View {
 			}
 		});
 		
-       
-		
-
 		Label currUserLabel = new Label();
         currUserLabel.setCaption("LoggedIn User "+CurrentUser.get());
         
@@ -133,20 +177,25 @@ public class ExpensesGridView extends CssLayout implements View {
 		filtering.addComponents(filter, clearFilterTextBtn);
 		filtering.setStyleName(ValoTheme.LAYOUT_COMPONENT_GROUP);
 		
-		HorizontalLayout topBar = new HorizontalLayout(filtering, addNewBtn); 
+		HorizontalLayout topBar = new HorizontalLayout(filtering, addNewBtn, this.advanceSearchBtn); 
 		topBar.setSpacing(true);
-
-        VerticalLayout v = new VerticalLayout(currUserLabel, topBar);
-        v.setSpacing(true);
+		//topBar.setMargin(true);
+		topBar.setSizeUndefined();
 		
+        VerticalLayout v = new VerticalLayout(topBar);
+        
+        v.setSpacing(true);
+		v.setMargin(true);
 		
 		HorizontalLayout main = new HorizontalLayout(grid, editor);
 		main.setSpacing(true);
+		main.setMargin(true);
 		main.setSizeFull();
 		grid.setSizeFull();
 		
-
-		addComponents(v, main);
+		
+		
+		addComponents(v, searchPanel, main);
 		
 		// Initialize listing
 		listExpenses(null);		
@@ -168,6 +217,39 @@ public class ExpensesGridView extends CssLayout implements View {
 			}
 		});*/
 
+		findBtn.addClickListener(new ClickListener() {
+			@Override
+			public void buttonClick(ClickEvent e) {
+				
+				if (null != fromDate.getValue() && null != toDate.getValue() && null == merchantField.getValue() && null == categoryField.getValue()) {
+					listExpensesByDateRange (fromDate.getValue(), toDate.getValue());
+				} else if (null == fromDate.getValue() && null == toDate.getValue() && null != merchantField.getValue() && null == categoryField.getValue()) {
+					grid.setContainerDataSource(new BeanItemContainer<>(ExpenseDetail.class, repo.findByMerchant(merchantField.getValue())));
+				} else if (null == fromDate.getValue() && null == toDate.getValue() && null == merchantField.getValue() && null != categoryField.getValue()) {
+					grid.setContainerDataSource(new BeanItemContainer<>(ExpenseDetail.class, repo.findByCategory(categoryField.getValue())));
+				} else {
+					grid.setContainerDataSource(new BeanItemContainer<>(ExpenseDetail.class, 
+							ExpenseManagementService.findByCriteria(CurrentUser.get(), fromDate.getValue(), toDate.getValue(), merchantField.getValue(), categoryField.getValue())));
+					
+				}
+				
+				
+				//sub.close();
+			}
+
+		});		
+		
+		
+		showAllBtn.addClickListener(new ClickListener() {
+			@Override
+			public void buttonClick(ClickEvent e) {
+				fromDate.clear();
+				toDate.clear();
+				listExpenses(null);
+				//sub.close();
+			}
+		});		
+		
 		grid.addSelectionListener(new SelectionListener() {
 			
 			@Override
@@ -219,26 +301,7 @@ public class ExpensesGridView extends CssLayout implements View {
 
 
 
-		findBtn.addClickListener(new ClickListener() {
-			@Override
-			public void buttonClick(ClickEvent e) {
-				
-				listExpensesByDateRange (fromDate.getValue(), toDate.getValue());
-			}
-
-		});		
-		
-		
-		showAllBtn.addClickListener(new ClickListener() {
-			@Override
-			public void buttonClick(ClickEvent e) {
-				fromDate.clear();
-				toDate.clear();
-				listExpenses(null);
-			}
-		});
-
-		filter.setInputPrompt("Filter by merchant");
+		filter.setInputPrompt("Filter by text");
 		
 		// Replace listing with filtered content when user changes filter
 		filter.addTextChangeListener(new TextChangeListener() {
@@ -279,7 +342,7 @@ public class ExpensesGridView extends CssLayout implements View {
 	private void listExpensesByDateRange(Date from, Date to) {
 		log.info("*********      from       ************ "+ from);
 		log.info("*********      to       ************ "+ to);
-		//grid.setBeans(repo.findByTransactionDateBetween(from, to));
+		grid.setContainerDataSource(new BeanItemContainer<>(ExpenseDetail.class, repo.findByTransactionDateBetween(from, to)));
 		
 	}
     

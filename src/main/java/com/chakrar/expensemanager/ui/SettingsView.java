@@ -1,9 +1,11 @@
 package com.chakrar.expensemanager.ui;
 
+import com.chakrar.expensemanager.auth.CurrentUser;
 import com.chakrar.expensemanager.auth.SignUpForm;
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
-import com.vaadin.ui.HorizontalSplitPanel;
+import com.vaadin.server.FontAwesome;
+import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Panel;
 import com.vaadin.ui.VerticalLayout;
@@ -21,42 +23,31 @@ public class SettingsView extends VerticalLayout implements View {
 	private SignUpForm signUpForm = new SignUpForm(null, this);
 
 	public SettingsView () {
-/*	    CustomLayout settingsContent = new CustomLayout("settingsview");
-	    settingsContent.setStyleName("settings-content");
-
-	    // you can add Vaadin components in predefined slots in the custom
-	    // layout
-	    settingsContent.addComponent(
-	            new Label(FontAwesome.INFO_CIRCLE.getHtml() + " User Settings ", ContentMode.HTML), "settings");
-
-	    setSizeFull();
-	    setStyleName("settings-view");
-	    addComponent(settingsContent);
-	    setComponentAlignment(settingsContent, Alignment.MIDDLE_CENTER);*/	
-	    
-		Panel panel = new Panel("Split Panels Inside This Panel");
-		HorizontalSplitPanel hsplit = new HorizontalSplitPanel();
+		Panel panel = new Panel("User Details");
+		panel.setSizeUndefined();
+		panel.setIcon(FontAwesome.INFO);
+		addComponent(panel);
 		
-		Label welcome = new Label("View/Update User Settings");
-		welcome.setStyleName(ValoTheme.LABEL_COLORED);
-		hsplit.setFirstComponent(welcome);
-		
-		
-		
+		Label currUserLabel = new Label();
+        currUserLabel.setCaption("LoggedIn User "+CurrentUser.get());
+        currUserLabel.setStyleName(ValoTheme.LABEL_H3);
+        
         VerticalLayout userInfo = new VerticalLayout(signUpForm);
         
         userInfo.setSpacing(true);
-        userInfo.setSizeFull();
-        
-        //addComponent(centeringLayout);
+        userInfo.setSizeUndefined();
+        userInfo.setMargin(true);
         
         signUpForm.setVisible(true);
-        hsplit.setSecondComponent(userInfo);
         
-        panel.setContent(hsplit);
-        addComponent(panel);
-     /*   addComponent(userInfo);	
-        setComponentAlignment(userInfo, Alignment.TOP_RIGHT);*/
+        VerticalLayout main = new VerticalLayout(currUserLabel, userInfo);
+        main.setSpacing(true);
+        main.setMargin(true);
+        
+        addComponent(main);
+        panel.setContent(main);
+		setComponentAlignment(panel, Alignment.MIDDLE_CENTER);
+
 	}
 	
 	@Override

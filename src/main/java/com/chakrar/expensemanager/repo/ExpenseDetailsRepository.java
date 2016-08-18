@@ -26,6 +26,6 @@ public interface ExpenseDetailsRepository extends CouchbasePagingAndSortingRepos
 	
 	List<ExpenseDetail> findByMerchantStartsWithIgnoreCase(String merchantName);
 	
-	
+	List<ExpenseDetail> findByCategory(String category);
 
 }
